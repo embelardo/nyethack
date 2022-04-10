@@ -13,7 +13,7 @@ private fun promptHeroName(): String {
         ::makeYellow
     )
 
-    println("Madrigal")
+    println("  Madrigal")
     return "Madrigal"
 }
 
