@@ -1,4 +1,6 @@
 import java.io.File
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 private const val TAVERN_MASTER = "Taernyl"
 private const val TAVERN_NAME = "$TAVERN_MASTER's Folly"
@@ -9,54 +11,72 @@ private val lastNames = setOf("Ironfoot", "Fernsworth", "Baggins", "Downstrider"
 private val menuData = File("data/tavern-menu-data.txt")
     .readText()
     .split("\n")
+    .map { it.split(",") }
 
-private val menuItems = List(menuData.size) { index ->
-    val (_, name, _) = menuData[index].split(",")
-    name
-}
+private val menuItems = menuData.map { (_, name, _) -> name }
 
-private val menuItemsFormatted = List(menuData.size) { index ->
-    val (type, name, price) = menuData[index].split(",")
-    "    %d  %-25s  :  %16s  %5s".format((index + 1), name, type, price)
-}
-
-private val menuItemPrices: Map<String, Double> = List(menuData.size) { index ->
-    val (_, name, price) = menuData[index].split(",")
-    name to price.toDouble()
-}.toMap()
-
-private val menuItemTypes: Map<String, String> = List(menuData.size) { index ->
-    val (type, name, _) = menuData[index].split(",")
+private val menuItemTypes = menuData.associate { (type, name, _) ->
     name to type
-}.toMap()
+}
+
+private val menuItemPrices = menuData.associate { (_, name, price) ->
+    name to price.toDouble()
+}
+
+fun formatMenuItems(): String {
+    val builder = StringBuilder()
+    menuItems.toList().sorted().forEachIndexed { index, name ->
+        val type = menuItemTypes[name]
+        val price = menuItemPrices[name]
+        val itemNumber = index + 1
+        builder.append("  %d  %-25s : %16s  %5s".format((itemNumber), name, type, price))
+        if (itemNumber < menuItems.size) builder.append("\n")
+    }
+    return builder.toString()
+}
 
 fun visitTavern() {
     narrate("$heroName enters $TAVERN_NAME")
     narrate("---")
     narrate("There are several items for sale:")
-    narrate("    *** Welcome to Taernyl's Folly ***")
-    narrate(menuItemsFormatted.joinToString("\n"))
+    narrate("  *** Welcome to Taernyl's Folly ***")
+    narrate(formatMenuItems())
     narrate("---")
 
-    val patrons: MutableSet<String> = mutableSetOf()
+    val patrons: MutableSet<String> = firstNames.shuffled()
+        .zip(lastNames.shuffled()) { firstName, lastName -> "$firstName $lastName" }
+        .toMutableSet()
+
     val patronGold = mutableMapOf(
         TAVERN_MASTER to 86.00,
-        heroName to 4.50
+        heroName to 4.50,
+        *patrons.map { it to 6.00 }.toTypedArray()
     )
-    while (patrons.size < 5) {
-        val patronName = "${firstNames.random()} ${lastNames.random()}"
-        patrons += patronName
-        patronGold += patronName to 6.0
-    }
 
     narrate("$heroName sees several patrons in the tavern:")
     narrate("  ${patrons.joinToString()}")
+
+    narrate("---")
+    val itemOfDay = patrons.flatMap { getFavoriteMenuItems(it) }.random()
+    narrate("The item of the day is the $itemOfDay")
+
     narrate("---")
     repeat(3) {
         placeOrder(patrons.random(), menuItems.random(), patronGold)
     }
     narrate("---")
     displayPatronBalances(patronGold)
+
+    narrate("---")
+    val departingPatrons: List<String> = patrons
+        .filter { patron -> patronGold.getOrDefault(patron, 0.0) < 4.0 }
+    patrons -= departingPatrons
+    patronGold -= departingPatrons
+    departingPatrons.forEach { patron ->
+        narrate("$heroName sees $patron departing the tavern")
+    }
+    narrate("There are still some patrons in the tavern:")
+    narrate("  ${patrons.joinToString()}")
 }
 
 private fun placeOrder(
@@ -78,6 +98,15 @@ private fun placeOrder(
         patronGold[TAVERN_MASTER] = patronGold.getValue(TAVERN_MASTER) + itemPrice
     } else {
         narrate("  $TAVERN_MASTER says, \"You need more coin for a $menuItemName\"")
+    }
+}
+
+private fun getFavoriteMenuItems(patron: String): List<String> {
+    return when (patron) {
+        "Alex Ironfoot" -> menuItems.filter { menuItem ->
+            menuItemTypes[menuItem]?.contains("dessert") == true
+        }
+        else -> menuItems.shuffled().take(Random.nextInt(1..2))
     }
 }
 
