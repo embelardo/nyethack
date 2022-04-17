@@ -1,3 +1,5 @@
+package com.bignerdranch.nyethack
+
 import kotlin.random.Random
 import kotlin.random.nextInt
 
