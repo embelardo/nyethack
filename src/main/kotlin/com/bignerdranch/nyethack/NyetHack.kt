@@ -11,10 +11,11 @@ fun main() {
     narrate("---")
     player.prophesize()
     narrate("---")
+    var currentRoom: Room = Tavern()
     val mortality = if (player.isImmortal) "an immortal" else "a mortal"
-    narrate("${player.name} of ${player.hometown}, ${player.title}, heads to the town square")
+    narrate("${player.name} of ${player.hometown}, ${player.title}, is in ${currentRoom.description()}")
     narrate("${player.name}, $mortality, has ${player.healthPoints} health points")
-    visitTavern()
+    currentRoom.enterRoom()
     narrate("---")
     player.castFireball()
     narrate("---")
