@@ -1,6 +1,6 @@
 package com.bignerdranch.nyethack
 
-open class Room(val name: String) {
+open class Room(private val name: String) {
 
     protected open val status = "Calm"
 

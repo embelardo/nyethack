@@ -11,8 +11,10 @@ open class TownSquare : Room("The Town Square") {
         ringBell()
     }
 
-    fun ringBell() {
-        narrate("The bell tower announces the hero's presence: $bellSound")
+    fun ringBell(count: Int = 1) {
+        count.downTo(1).forEach { _ ->
+            narrate("The bell tower announces the hero's presence: $bellSound")
+        }
     }
 
 }

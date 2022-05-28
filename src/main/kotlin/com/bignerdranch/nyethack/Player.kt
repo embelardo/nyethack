@@ -21,7 +21,7 @@ class Player(
             else -> "The Renowned Hero"
         }
 
-    val prophecy by lazy {
+    private val prophecy by lazy {
         narrate("  $name embarks on an arduous quest to locate a fortune teller")
         Thread.sleep(3000)
         narrate("  The fortune teller bestows a prophecy upon $name")
