@@ -4,11 +4,12 @@ lateinit var player: Player
 
 fun main() {
     narrate("Welcome to NyetHack!")
-    narrate("---")
+    println("---")
     val playerName = promptHeroName()
     player = Player(playerName)
-    // changeNarratorMood()
-    narrate("---")
+//    println("---")
+//    changeNarratorMood()
+    println("---")
 
     Game.play()
 }
@@ -17,6 +18,7 @@ private fun promptHeroName(): String {
     narrate("A hero enters the town of Kronstadt. What is their name?")
 
     narrate("  Madrigal", ::makeYellow)
+
     return "Madrigal"
 }
 

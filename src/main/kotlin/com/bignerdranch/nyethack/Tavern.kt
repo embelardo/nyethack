@@ -27,11 +27,11 @@ private val menuItemPrices = menuData.associate { (_, name, price) ->
 
 class Tavern : Room(TAVERN_NAME) {
 
-    val patrons: MutableSet<String> = firstNames.shuffled()
+    private val patrons: MutableSet<String> = firstNames.shuffled()
         .zip(lastNames.shuffled()) { firstName, lastName -> "$firstName $lastName" }
         .toMutableSet()
 
-    val patronGold = mutableMapOf(
+    private val patronGold = mutableMapOf(
         TAVERN_MASTER to 86.00,
         player.name to 4.50,
         *patrons.map { it to 6.00 }.toTypedArray()
@@ -41,21 +41,24 @@ class Tavern : Room(TAVERN_NAME) {
 
     override val status = "Busy"
 
+    override val lootBox: LootBox<Key> =
+        LootBox(Key("key to Nogartse's evil lair"))
+
     override fun enterRoom() {
         narrate("${player.name} enters $TAVERN_NAME")
-        narrate("---")
+        println("---")
 
         narrate("There are several items for sale:")
         narrate("  *** Welcome to Taernyl's Folly ***")
         narrate(formatMenuItems())
-        narrate("---")
+        println("---")
 
         narrate("The item of the day is the $itemOfDay")
-        narrate("---")
+        println("---")
 
         narrate("${player.name} sees several patrons in the tavern:")
         narrate("  ${patrons.joinToString()}")
-        narrate("---")
+        println("---")
 
         placeOrder(patrons.random(), menuItems.random())
     }
