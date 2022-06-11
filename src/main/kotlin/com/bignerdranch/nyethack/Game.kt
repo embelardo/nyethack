@@ -64,13 +64,20 @@ object Game {
             return
         }
 
+        var combatRound = 0
+        val previousNarrationModifier = narrationModifier
+        narrationModifier = { it.addEnthusiasm(enthusiasmLevel = combatRound) }
+
         while (player.healthPoints > 0 && currentMonster.healthPoints > 0) {
+            combatRound++
+
             player.attack(currentMonster)
             if (currentMonster.healthPoints > 0) {
                 currentMonster.attack(player)
             }
             Thread.sleep(1000)
         }
+        narrationModifier = previousNarrationModifier
 
         if (player.healthPoints <= 0) {
             narrate("You have been defeated! Thanks for playing")
@@ -82,17 +89,16 @@ object Game {
     }
 
     fun move(direction: Direction) {
-        val newPosition = direction.updateCoordinate(currentPosition)
-        val newRoom = worldMap.getOrNull(newPosition.y)?.getOrNull(newPosition.x)
+        val newPosition = currentPosition move direction
+        val newRoom = worldMap[newPosition].orEmptyRoom()
 
-        if (newRoom != null) {
-            narrate("The hero moves ${direction.name}")
-            currentPosition = newPosition
-            currentRoom = newRoom
-        } else {
-            narrate("You cannot move ${direction.name}")
-        }
+        narrate("The hero moves ${direction.name}")
+        currentPosition = newPosition
+        currentRoom = newRoom
     }
+
+    private operator fun List<List<Room>>.get(coordinate: Coordinate) =
+        getOrNull(coordinate.y)?.getOrNull(coordinate.x)
 
     fun map() {
         worldMap.forEach { rooms ->

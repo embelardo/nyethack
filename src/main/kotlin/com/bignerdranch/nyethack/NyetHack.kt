@@ -7,8 +7,8 @@ fun main() {
     println("---")
     val playerName = promptHeroName()
     player = Player(playerName)
-//    println("---")
-//    changeNarratorMood()
+    println("---")
+    changeNarratorMood()
     println("---")
 
     Game.play()
@@ -17,9 +17,12 @@ fun main() {
 private fun promptHeroName(): String {
     narrate("A hero enters the town of Kronstadt. What is their name?")
 
-    narrate("  Madrigal", ::makeYellow)
+    val input = readLine()
+    require(input != null && input.isNotEmpty()) {
+        "The hero must have a name."
+    }
 
-    return "Madrigal"
+    return input
 }
 
 fun makeYellow(message: String) = "\u001b[33;1m$message\u001b[0m"
